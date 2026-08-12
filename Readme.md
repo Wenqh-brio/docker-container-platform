@@ -78,6 +78,8 @@ To expose the UI publicly you can use **Cloudflare Pages** for the static front�
    The tunnel will expose the backend on `http://yourdomain.com` while the front‑end remains on Cloudflare Pages.
 3. Update the front‑end `app.js` API base URL if needed (it defaults to the same origin).
 
+   **Tip:** Cloudflare Pages allows you to define environment variables in the project settings. Create a variable named `API_BASE_URL` with the URL of your backend service (e.g., `https://api.yourdomain.com`). The front‑end will automatically read this value via `window._env_.API_BASE_URL`.
+
 ## Security Notes
 * **Password hashing** – `bcrypt` with a cost factor of 12.
 * **SQL injection protection** – all queries use prepared statements.
