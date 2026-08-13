@@ -146,9 +146,11 @@ function renderRegister() {
     .addEventListener("submit", async (e) => {
       e.preventDefault();
       const form = e.target;
+        const rawPassword = form.password.value;
+        if (!isStrongPassword(rawPassword)) { setMessage('registerMsg', t('weakPassword')); return; }
         const data = {
           username: form.username.value,
-          password: hashPassword(form.password.value),
+          password: hashPassword(rawPassword),
         };
       try {
           await api.post("/api/register", data);
