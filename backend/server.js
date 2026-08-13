@@ -46,7 +46,7 @@ function captchaCheck(req, res, next) {
 }
 
 // Registration endpoint
-app.post('/api/register', captchaCheck, async (req, res) => {
+app.post('/api/register', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password required' });

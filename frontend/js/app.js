@@ -17,6 +17,34 @@ const API_BASE_URL =
 // Create an Axios instance with the base URL
 const api = axios.create({ baseURL: API_BASE_URL });
 
+// Determine language (simplified)
+const userLang = (navigator.language || 'en').startsWith('zh') ? 'zh' : 'en';
+const i18n = {
+  en: {
+    loginFailed: 'Login failed',
+    registrationSuccess: 'Registration successful, please login',
+    registrationFailed: 'Registration failed',
+    missingFields: 'Username and password required',
+  },
+  zh: {
+    loginFailed: '登录失败',
+    registrationSuccess: '注册成功，请登录',
+    registrationFailed: '注册失败',
+    missingFields: '需要用户名和密码',
+  },
+};
+function t(key){ return i18n[userLang][key] || key; }
+
+function setMessage(id, text){
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+// Hash password client‑side (SHA‑256)
+function hashPassword(pwd){
+  return CryptoJS.SHA256(pwd).toString(CryptoJS.enc.Hex);
+}
+
 // Simple helper to store the mock authenticated user ID
 function setUserId(id) {
   localStorage.setItem("userId", id);
@@ -46,6 +74,7 @@ function renderLogin() {
           <button type="submit" class="btn btn-primary w-100">Login</button>
         </form>
         <hr />
+        <div id="loginMsg" class="mt-2 text-danger"></div>
         <p class="text-center">Or <a href="#" id="showRegister">Register</a></p>
       </div>
     </div>
@@ -55,16 +84,16 @@ function renderLogin() {
     .addEventListener("submit", async (e) => {
       e.preventDefault();
       const form = e.target;
-      const data = {
-        username: form.username.value,
-        password: form.password.value,
-      };
+        const data = {
+          username: form.username.value,
+          password: hashPassword(form.password.value),
+        };
       try {
         const resp = await api.post("/api/login", data);
         setUserId(resp.data.userId);
         renderDashboard();
       } catch (err) {
-        alert(err.response?.data?.error || "Login failed");
+        setMessage('loginMsg', err.response?.data?.error || t('loginFailed'));
       }
     });
   document
@@ -89,13 +118,11 @@ function renderRegister() {
             <label class="form-label">Password</label>
             <input type="password" class="form-control" name="password" required />
           </div>
-          <div class="mb-3">
-            <label class="form-label">Captcha (placeholder)</label>
-            <input type="text" class="form-control" name="captchaToken" placeholder="Enter any text" required />
-          </div>
+
           <button type="submit" class="btn btn-success w-100">Register</button>
         </form>
         <hr />
+        <div id="registerMsg" class="mt-2 text-danger"></div>
         <p class="text-center">Already have an account? <a href="#" id="showLogin">Login</a></p>
       </div>
     </div>
@@ -105,18 +132,18 @@ function renderRegister() {
     .addEventListener("submit", async (e) => {
       e.preventDefault();
       const form = e.target;
-      const data = {
-        username: form.username.value,
-        password: form.password.value,
-        captchaToken: form.captchaToken.value,
-      };
+        const data = {
+          username: form.username.value,
+          password: hashPassword(form.password.value),
+        };
       try {
-        await api.post("/api/register", data);
-        alert("Registration successful, please login");
-        renderLogin();
-      } catch (err) {
-        alert(err.response?.data?.error || "Registration failed");
-      }
+          await api.post("/api/register", data);
+          renderLogin();
+          setMessage('loginMsg', t('registrationSuccess'));
+
+        } catch (err) {
+          setMessage('registerMsg', err.response?.data?.error || t('registrationFailed'));
+        }
     });
   document
     .getElementById("showLogin")
