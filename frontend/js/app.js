@@ -25,12 +25,26 @@ const i18n = {
     registrationSuccess: 'Registration successful, please login',
     registrationFailed: 'Registration failed',
     missingFields: 'Username and password required',
+    login: 'Login',
+    register: 'Register',
+    username: 'Username',
+    password: 'Password',
+    orRegister: 'Or <a href="#" id="showRegister">Register</a>',
+    alreadyAccount: 'Already have an account? <a href="#" id="showLogin">Login</a>',
+    weakPassword: 'Password must be at least 8 characters, include uppercase, lowercase, number and special character',
   },
   zh: {
     loginFailed: '登录失败',
     registrationSuccess: '注册成功，请登录',
     registrationFailed: '注册失败',
     missingFields: '需要用户名和密码',
+    login: '登录',
+    register: '注册',
+    username: '用户名',
+    password: '密码',
+    orRegister: '或者 <a href="#" id="showRegister">注册</a>',
+    alreadyAccount: '已有账户？<a href="#" id="showLogin">登录</a>',
+    weakPassword: '密码必须至少8位，且包含大小写字母、数字和特殊字符',
   },
 };
 function t(key){ return i18n[userLang][key] || key; }
@@ -61,21 +75,21 @@ function renderLogin() {
   appDiv.innerHTML = `
     <div class="card mx-auto" style="max-width: 400px;">
       <div class="card-body">
-        <h5 class="card-title">Login</h5>
+        <h5 class="card-title">${t('login')}</h5>
         <form id="loginForm">
           <div class="mb-3">
-            <label class="form-label">Username</label>
+            <label class="form-label">${t('username')}</label>
             <input type="text" class="form-control" name="username" required />
           </div>
           <div class="mb-3">
-            <label class="form-label">Password</label>
+            <label class="form-label">${t('password')}</label>
             <input type="password" class="form-control" name="password" required />
           </div>
-          <button type="submit" class="btn btn-primary w-100">Login</button>
+          <button type="submit" class="btn btn-primary w-100">${t('login')}</button>
         </form>
         <hr />
         <div id="loginMsg" class="mt-2 text-danger"></div>
-        <p class="text-center">Or <a href="#" id="showRegister">Register</a></p>
+        <p class="text-center">${t('orRegister')}</p>
       </div>
     </div>
   `;
@@ -108,22 +122,22 @@ function renderRegister() {
   appDiv.innerHTML = `
     <div class="card mx-auto" style="max-width: 400px;">
       <div class="card-body">
-        <h5 class="card-title">Register</h5>
+        <h5 class="card-title">${t('register')}</h5>
         <form id="registerForm">
           <div class="mb-3">
-            <label class="form-label">Username</label>
+            <label class="form-label">${t('username')}</label>
             <input type="text" class="form-control" name="username" required />
           </div>
           <div class="mb-3">
-            <label class="form-label">Password</label>
+            <label class="form-label">${t('password')}</label>
             <input type="password" class="form-control" name="password" required />
           </div>
 
-          <button type="submit" class="btn btn-success w-100">Register</button>
+          <button type="submit" class="btn btn-success w-100">${t('register')}</button>
         </form>
         <hr />
         <div id="registerMsg" class="mt-2 text-danger"></div>
-        <p class="text-center">Already have an account? <a href="#" id="showLogin">Login</a></p>
+        <p class="text-center">${t('alreadyAccount')}</p>
       </div>
     </div>
   `;
