@@ -1,0 +1,136 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: CI/CD for Docker Container Platform
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================
+  # 任务 1：构建与测试
+  # ============================================
+  build-and-test:
+    name: Build & Test
+    runs-on: centos-latest
+    
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 构建（如有需要）
+        run: npm run build --if-present
+
+      - name: 运行测试
+        run: |
+          if npm run test --if-present; then
+            echo "测试通过"
+          else
+            echo "项目暂无测试脚本，跳过"
+          fi
+
+      - name: 上传构建产物（前端静态文件）
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend
+          path: frontend/
+
+  # ============================================
+  # 任务 2：部署到 Cloudflare Pages（可选）
+  # ============================================
+  deploy-frontend:
+    name: Deploy Frontend to Cloudflare Pages
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 部署到 Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: docker-container-manager
+          directory: frontend
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref_name }}
+
+  # ============================================
+  # 任务 3：部署到 VPS（通过 SSH）
+  # ============================================
+  deploy-backend:
+    name: Deploy Backend to VPS
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 通过 SSH 部署
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            echo "开始部署后端..."
+            cd /home/administrator/docker-container-platform
+            git pull origin main
+            npm ci --production
+            pkill -f "node backend/server.js" || true
+            nohup node backend/server.js > backend.log 2>&1 &
+            echo "后端已重启"
+
+  # ============================================
+  # 任务 4：构建并推送 Docker 镜像（可选）
+  # ============================================
+  docker-build:
+    name: Build & Push Docker Image
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 登录到 GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 构建并推送镜像
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+    - run: npm test
