@@ -59,6 +59,16 @@ function hashPassword(pwd){
   return CryptoJS.SHA256(pwd).toString(CryptoJS.enc.Hex);
 }
 
+// Check password strength (at least 8 chars, upper, lower, digit, special)
+function isStrongPassword(pwd){
+  const length = pwd.length >= 8;
+  const hasUpper = /[A-Z]/.test(pwd);
+  const hasLower = /[a-z]/.test(pwd);
+  const hasDigit = /[0-9]/.test(pwd);
+  const hasSpecial = /[!@#$%^&*(),.?\":{}|<>]/.test(pwd);
+  return length && hasUpper && hasLower && hasDigit && hasSpecial;
+}
+
 // Simple helper to store the mock authenticated user ID
 function setUserId(id) {
   localStorage.setItem("userId", id);
