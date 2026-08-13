@@ -1,3 +1,4 @@
+pkill -f "node backend/server.js" 
 #!/usr/bin/env bash
 set -e
 

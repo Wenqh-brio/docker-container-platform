@@ -1,2 +1,9 @@
 /* Minimal stylesheet for VM Management Platform */
 body { margin: 0; font-family: Arial, sans-serif; }
+
+/* Password strength feedback */
+.requirement-item { font-size: 0.9rem; margin-bottom: 2px; }
+.requirement-item.pass { color: green; }
+.requirement-item.fail { color: red; }
+.progress { height: 8px; background-color: #e9ecef; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+.progress-bar { height: 100%; background-color: #28a745; width: 0%; transition: width 0.2s; }

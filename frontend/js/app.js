@@ -146,12 +146,13 @@ function renderRegister() {
             </div>
             <div class="mb-3">
               <label class="form-label">${t('password')}</label>
-              <input type="password" class="form-control" name="password" required />
+                <input type="password" class="form-control" name="password" id="password" required />
             </div>
             <div class="mb-3">
               <label class="form-label">${t('confirmPassword')}</label>
-              <input type="password" class="form-control" name="confirmPassword" required />
+                <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" required />
             </div>
+            <div id="passwordRequirements" class="mt-2"></div>
 
           <button type="submit" class="btn btn-success w-100">${t('register')}</button>
         </form>
