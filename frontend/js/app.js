@@ -74,6 +74,33 @@ function isStrongPassword(pwd){
   return length && categories >= 3;
 }
 
+// Update password strength UI
+function updatePasswordFeedback(pwd) {
+  const strengths = {
+    length: pwd.length >= 8,
+    uppercase: /[A-Z]/.test(pwd),
+    lowercase: /[a-z]/.test(pwd),
+    digit: /[0-9]/.test(pwd),
+    special: /[!@#$%^&*(),.?\":{}|<>]/.test(pwd)
+  };
+  const total = Object.keys(strengths).length;
+  const passed = Object.values(strengths).filter(Boolean).length;
+  const percent = Math.round((passed / total) * 100);
+  const container = document.getElementById('passwordRequirements');
+  if (!container) return;
+  const items = Object.entries(strengths).map(([key, ok]) => {
+    let name;
+    if (key === 'length') name = 'At least 8 characters';
+    else if (key === 'uppercase') name = 'Uppercase letter';
+    else if (key === 'lowercase') name = 'Lowercase letter';
+    else if (key === 'digit') name = 'Number';
+    else if (key === 'special') name = 'Special character';
+    return `<div class="requirement-item ${ok ? 'pass' : 'fail'}">${ok ? '✓' : '✗'} ${name}</div>`;
+  }).join('');
+  const progress = `<div class="progress"><div class="progress-bar" style="width:${percent}%"></div></div>`;
+  container.innerHTML = items + progress;
+}
+
 // Simple helper to store the mock authenticated user ID
 function setUserId(id) {
   localStorage.setItem("userId", id);
@@ -146,7 +173,7 @@ function renderRegister() {
             </div>
             <div class="mb-3">
               <label class="form-label">${t('password')}</label>
-                <input type="password" class="form-control" name="password" id="password" required />
+                <input type="password" class="form-control" name="password" id="password" oninput="updatePasswordFeedback(this.value)" required />
             </div>
             <div class="mb-3">
               <label class="form-label">${t('confirmPassword')}</label>
