@@ -21,7 +21,7 @@ app.use(helmet({
       scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],
       styleSrc: ["'self'", "https://cdn.jsdelivr.net"],
       imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"]
+      connectSrc: ["'self'", "https://cdn.jsdelivr.net"]
     }
   }
 }));
