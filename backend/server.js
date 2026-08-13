@@ -23,7 +23,8 @@ app.use(helmet({
       imgSrc: ["'self'", "data:"],
       connectSrc: ["'self'", "https://cdn.jsdelivr.net"]
     }
-  }
+  },
+  hsts:false
 }));
 app.use(cors({ origin: '*' }));
 app.use(bodyParser.json());
