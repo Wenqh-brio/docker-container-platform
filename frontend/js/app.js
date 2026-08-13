@@ -29,6 +29,8 @@ const i18n = {
     register: 'Register',
     username: 'Username',
     password: 'Password',
+    confirmPassword: 'Confirm Password',
+    passwordMismatch: 'Passwords do not match',
     orRegister: 'Or <a href="#" id="showRegister">Register</a>',
     alreadyAccount: 'Already have an account? <a href="#" id="showLogin">Login</a>',
     weakPassword: 'Password must be at least 8 characters, include uppercase, lowercase, number and special character',
@@ -42,6 +44,8 @@ const i18n = {
     register: '注册',
     username: '用户名',
     password: '密码',
+    confirmPassword: '确认密码',
+    passwordMismatch: '两次输入的密码不一致',
     orRegister: '或者 <a href="#" id="showRegister">注册</a>',
     alreadyAccount: '已有账户？<a href="#" id="showLogin">登录</a>',
     weakPassword: '密码必须至少8位，且包含大小写字母、数字和特殊字符',
@@ -66,7 +70,8 @@ function isStrongPassword(pwd){
   const hasLower = /[a-z]/.test(pwd);
   const hasDigit = /[0-9]/.test(pwd);
   const hasSpecial = /[!@#$%^&*(),.?\":{}|<>]/.test(pwd);
-  return length && hasUpper && hasLower && hasDigit && hasSpecial;
+  const categories = [hasUpper, hasLower, hasDigit, hasSpecial].filter(Boolean).length;
+  return length && categories >= 3;
 }
 
 // Simple helper to store the mock authenticated user ID
@@ -103,9 +108,10 @@ function renderLogin() {
       </div>
     </div>
   `;
-  document
-    .getElementById("loginForm")
-    .addEventListener("submit", async (e) => {
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (e) => {
+          setMessage('loginMsg', '');
       e.preventDefault();
       const form = e.target;
         const data = {
@@ -132,16 +138,20 @@ function renderRegister() {
   appDiv.innerHTML = `
     <div class="card mx-auto" style="max-width: 400px;">
       <div class="card-body">
-        <h5 class="card-title">${t('register')}</h5>
-        <form id="registerForm">
-          <div class="mb-3">
-            <label class="form-label">${t('username')}</label>
-            <input type="text" class="form-control" name="username" required />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">${t('password')}</label>
-            <input type="password" class="form-control" name="password" required />
-          </div>
+          <h5 class="card-title">${t('register')}</h5>
+          <form id="registerForm">
+            <div class="mb-3">
+              <label class="form-label">${t('username')}</label>
+              <input type="text" class="form-control" name="username" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">${t('password')}</label>
+              <input type="password" class="form-control" name="password" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">${t('confirmPassword')}</label>
+              <input type="password" class="form-control" name="confirmPassword" required />
+            </div>
 
           <button type="submit" class="btn btn-success w-100">${t('register')}</button>
         </form>
@@ -157,6 +167,8 @@ function renderRegister() {
       e.preventDefault();
       const form = e.target;
         const rawPassword = form.password.value;
+        const confirmPassword = form.confirmPassword.value;
+        if (rawPassword !== confirmPassword) { setMessage('registerMsg', t('passwordMismatch')); return; }
         if (!isStrongPassword(rawPassword)) { setMessage('registerMsg', t('weakPassword')); return; }
         const data = {
           username: form.username.value,
