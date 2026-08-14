@@ -12,7 +12,7 @@ const API_BASE_URL =
   // Vite/ESM style environment variables (if built with a bundler)
   (import.meta && import.meta.env && import.meta.env.API_BASE_URL) ||
   // Fallback for local development
-  "http://localhost:3000";
+  "http://[240e:370:2721:7c60:a9d:f4ff:fe12:d4a0]:3000";
 
 // Create an Axios instance with the base URL
 const api = axios.create({ baseURL: API_BASE_URL });
