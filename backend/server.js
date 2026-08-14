@@ -13,6 +13,12 @@ const path = require('path');
 
 const app = express();
 
+// Dynamically construct allowed connect-src origins
+const connectSources = ["'self'", "https://cdn.jsdelivr.net"];
+if (process.env.API_BASE_URL) {
+  connectSources.push(process.env.API_BASE_URL);
+}
+
 // Middleware
 app.use(helmet({
   contentSecurityPolicy: {
@@ -22,7 +28,7 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", "https://cdn.jsdelivr.net", "http://[240e:370:2721:7c60:a9d:f4ff:fe12:d4a0]:3000"],
+      connectSrc: connectSources,
       upgradeInsecureRequests: null
     }
   },

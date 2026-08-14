@@ -6,13 +6,9 @@
 // Cloudflare Pages.
 
 // Determine API base URL
-const API_BASE_URL =
-  // Cloudflare Pages can inject variables into a global _env_ object
-  (window && window._env_ && window._env_.API_BASE_URL) ||
-  // Vite/ESM style environment variables (if built with a bundler)
-  (import.meta && import.meta.env && import.meta.env.API_BASE_URL) ||
-  // Fallback for local development
-  "http://[240e:370:2721:7c60:a9d:f4ff:fe12:d4a0]:3000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
+                     window._env_?.API_BASE_URL ||
+                     '';
 
 // Create an Axios instance with the base URL
 const api = axios.create({ baseURL: API_BASE_URL });
