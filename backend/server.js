@@ -10,6 +10,7 @@ const db = require('./db');
 const Docker = require('dockerode');
 const docker = new Docker({ socketPath: '/var/run/docker.sock' });
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
@@ -38,6 +39,21 @@ app.use(cors({ origin: '*' }));
 app.use(bodyParser.json());
 app.use(xss());
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+
+// Inject environment variables into the index.html for client-side use
+app.get('/', (req, res) => {
+  const indexPath = path.join(__dirname, '..', 'frontend', 'index.html');
+  fs.readFile(indexPath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error loading index.html:', err);
+      return res.status(500).send('Error loading index.html');
+    }
+    const apiBaseUrl = process.env.API_BASE_URL || '';
+    const envScript = `<script>window._env_ = { API_BASE_URL: '${apiBaseUrl}' };</script>`;
+    const modified = data.replace('</head>', envScript + '</head>');
+    res.send(modified);
+  });
+});
 
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, '..', 'frontend')));

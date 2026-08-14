@@ -5,10 +5,8 @@
 // both locally (default http://localhost:3000) and when deployed to
 // Cloudflare Pages.
 
-// Determine API base URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
-                     window._env_?.API_BASE_URL ||
-                     '';
+// Determine API base URL from injected environment (window._env_)
+const API_BASE_URL = window._env_?.API_BASE_URL || '';
 
 // Create an Axios instance with the base URL
 const api = axios.create({ baseURL: API_BASE_URL });
