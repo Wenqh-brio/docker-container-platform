@@ -4,7 +4,7 @@ set -e
 
 mkdir -p data
 
-sudo systemctl start cloudflared
+#sudo systemctl start cloudflared
 
 echo "Installing Node.js dependencies..."
 npm install
