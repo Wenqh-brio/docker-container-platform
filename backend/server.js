@@ -22,7 +22,7 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", "https://cdn.jsdelivr.net"],
+      connectSrc: ["'self'", "https://cdn.jsdelivr.net", "http://[240e:370:2721:7c60:a9d:f4ff:fe12:d4a0]:3000"],
       upgradeInsecureRequests: null
     }
   },

@@ -75,31 +75,35 @@ function isStrongPassword(pwd){
 }
 
 // Update password strength UI
-function updatePasswordFeedback(pwd) {
-  const strengths = {
-    length: pwd.length >= 8,
-    uppercase: /[A-Z]/.test(pwd),
-    lowercase: /[a-z]/.test(pwd),
-    digit: /[0-9]/.test(pwd),
-    special: /[!@#$%^&*(),.?\":{}|<>]/.test(pwd)
-  };
-  const total = Object.keys(strengths).length;
-  const passed = Object.values(strengths).filter(Boolean).length;
-  const percent = Math.round((passed / total) * 100);
-  const container = document.getElementById('passwordRequirements');
-  if (!container) return;
-  const items = Object.entries(strengths).map(([key, ok]) => {
-    let name;
-    if (key === 'length') name = 'At least 8 characters';
-    else if (key === 'uppercase') name = 'Uppercase letter';
-    else if (key === 'lowercase') name = 'Lowercase letter';
-    else if (key === 'digit') name = 'Number';
-    else if (key === 'special') name = 'Special character';
-    return `<div class="requirement-item ${ok ? 'pass' : 'fail'}">${ok ? '✓' : '✗'} ${name}</div>`;
-  }).join('');
-  const progress = `<div class="progress"><div class="progress-bar" style="width:${percent}%"></div></div>`;
-  container.innerHTML = items + progress;
+function updatePasswordFeedback(input) {
+  const password = input.value;
+  const feedbackEl = document.getElementById('password-feedback');
+  if (!feedbackEl) return;
+
+  // Strength calculation (0‑4 points)
+  let strength = 0;
+  if (password.length >= 8) strength++;                                 // length
+  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;    // case mix
+  if (/\d/.test(password)) strength++;                                 // digits
+  if (/[^a-zA-Z0-9]/.test(password)) strength++;                       // special chars
+
+  // Map to label / colour
+  let label = '弱';
+  let colour = '#dc3545'; // red
+  if (strength === 2) {
+    label = '中';
+    colour = '#ffc107';   // amber
+  } else if (strength >= 3) {
+    label = '强';
+    colour = '#28a745';   // green
+  }
+
+  feedbackEl.textContent = `密码强度: ${label}`;
+  feedbackEl.style.color = colour;
 }
+
+// expose globally for inline HTML handler
+window.updatePasswordFeedback = updatePasswordFeedback;
 
 // Simple helper to store the mock authenticated user ID
 function setUserId(id) {
@@ -173,13 +177,13 @@ function renderRegister() {
             </div>
             <div class="mb-3">
               <label class="form-label">${t('password')}</label>
-                <input type="password" class="form-control" name="password" id="password" oninput="updatePasswordFeedback(this.value)" required />
+                <input type="password" class="form-control" name="password" id="password" oninput="updatePasswordFeedback(this)" required />
             </div>
             <div class="mb-3">
               <label class="form-label">${t('confirmPassword')}</label>
                 <input type="password" class="form-control" name="confirmPassword" id="confirmPassword" required />
             </div>
-            <div id="passwordRequirements" class="mt-2"></div>
+            <div id="password-feedback" class="mt-2"></div>
 
           <button type="submit" class="btn btn-success w-100">${t('register')}</button>
         </form>
